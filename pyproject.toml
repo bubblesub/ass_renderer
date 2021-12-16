@@ -25,6 +25,7 @@ packages = [
 python = ">=3.9,<3.11"
 numpy = "^1.21.4"
 ass-parser = "^1.0"
+Pillow = "^8.4.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
