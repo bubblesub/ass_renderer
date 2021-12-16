@@ -1,0 +1,47 @@
+[tool.poetry]
+name = "ass_renderer"
+version = "0.1"
+description = "Render ASS subtitles as numpy bitmaps."
+authors = ["Marcin Kurczewski <dash@wind.garden>"]
+license = "GPLv3"
+readme = "README.md"
+repository = "https://github.com/bubblesub/ass_renderer"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Text Processing",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+packages = [
+    { include = "ass_renderer" },
+]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.11"
+numpy = "^1.21.4"
+ass-parser = "^1.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+black = "^21.12b0"
+pre-commit = "^2.16.0"
+isort = "^5.10.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 79
+py36 = true
+
+[tool.isort]
+known_first_party = "ass_renderer"
+known_third_party = "ass_parser"
+multi_line_output = 3
+include_trailing_comma = true
