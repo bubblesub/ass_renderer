@@ -64,7 +64,7 @@ class AssRenderer:
         self._renderer.pixel_aspect = 1.0
 
     def render(
-        self, time: int, aspect_ratio: Union[float, Fraction]
+        self, time: int, aspect_ratio: Union[float, Fraction] = Fraction(1, 1)
     ) -> PIL.Image:
         """Render the ASS data to a PIL.Image bitmap.
 
