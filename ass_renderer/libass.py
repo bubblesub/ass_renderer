@@ -21,11 +21,15 @@
 
 import ctypes
 import ctypes.util
+import logging
 from collections.abc import Callable, Iterator
+from enum import IntEnum
 from typing import Any, Optional
 
 import ass_parser
 from ass_parser import write_ass
+
+logger = logging.getLogger(__name__)
 
 _libass_path = ctypes.util.find_library("ass") or ctypes.util.find_library(
     "libass"
@@ -47,6 +51,21 @@ def _encode_str(text: Optional[str]) -> Optional[bytes]:
 def _color_to_int(color: tuple[int, int, int, int]) -> int:
     red, green, blue, alpha = color
     return alpha | (blue << 8) | (green << 16) | (red << 24)
+
+
+MESSAGE_CB_FUNC_TYPE = ctypes.CFUNCTYPE(
+    None, ctypes.c_int, ctypes.c_char_p, ctypes.c_void_p, ctypes.c_void_p
+)
+
+
+class MessageLevel(IntEnum):
+    MSGL_NONE = -1
+    MSGL_FATAL = 0
+    MSGL_ERR = 1
+    MSGL_WARN = 2
+    MSGL_INFO = 4
+    MSGL_V = 6
+    MSGL_DBG2 = 7
 
 
 class AssImageSequence:
@@ -125,14 +144,28 @@ class AssLibrary(ctypes.Structure):
     def __new__(cls) -> Any:
         return _libass.ass_library_init().contents
 
-    def __init__(self) -> None:
+    def __init__(self, message_level: int = MessageLevel.MSGL_NONE) -> None:
         super().__init__()
         self._internal_fields: Any = {}
+        self._message_level = message_level
 
         if not ctypes.byref(self):
             raise RuntimeError("could not initialize libass")
 
         self.extract_fonts = False
+
+        self._message_cb_ref = MESSAGE_CB_FUNC_TYPE(self._message_cb)
+        _libass.ass_set_message_cb(
+            ctypes.byref(self), self._message_cb_ref, None
+        )
+
+    def _message_cb(self, level: int, fmt: bytes, va: Any, data: Any) -> None:
+        if level <= self._message_level:
+            buffer_string = ctypes.create_string_buffer(4096)
+            _libc.vsprintf(
+                buffer_string, fmt, ctypes.cast(va, ctypes.c_void_p)
+            )
+            logger.info(buffer_string.raw.decode())
 
     def __del__(self) -> None:
         _libass.ass_library_done(ctypes.byref(self))
@@ -351,6 +384,11 @@ class AssTrack(ctypes.Structure):
 _libc.free.argtypes = [ctypes.c_void_p]
 _libass.ass_library_init.restype = ctypes.POINTER(AssLibrary)
 _libass.ass_library_done.argtypes = [ctypes.POINTER(AssLibrary)]
+_libass.ass_set_message_cb.argtypes = [
+    ctypes.POINTER(AssLibrary),
+    MESSAGE_CB_FUNC_TYPE,
+    ctypes.c_void_p,
+]
 _libass.ass_renderer_init.argtypes = [ctypes.POINTER(AssLibrary)]
 _libass.ass_renderer_init.restype = ctypes.POINTER(AssRenderer)
 _libass.ass_renderer_done.argtypes = [ctypes.POINTER(AssRenderer)]
