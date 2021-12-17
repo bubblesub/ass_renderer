@@ -115,12 +115,9 @@ class AssRenderer:
             dst_alpha = fragment[..., 3].astype(np.float32) / 255.0
 
             out_alpha = src_alpha + dst_alpha * (1.0 - src_alpha)
-            out_color = (
-                src_color * src_alpha[..., None]
-                + dst_color
-                * dst_alpha[..., None]
-                * (1.0 - src_alpha[..., None])
-            ) / out_alpha[..., None]
+            out_color = src_color * src_alpha[
+                ..., None
+            ] + dst_color * dst_alpha[..., None] * (1.0 - src_alpha[..., None])
 
             fragment[..., :3] = out_color * 255
             fragment[..., 3] = out_alpha * 255
