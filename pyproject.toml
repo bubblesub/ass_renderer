@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ass_renderer"
-version = "0.3"
+version = "0.4"
 description = "Render ASS subtitles as numpy bitmaps."
 authors = ["Marcin Kurczewski <dash@wind.garden>"]
 license = "GPLv3"
