@@ -56,12 +56,8 @@ class AssRenderer:
         self._track = self._library.make_track()
         self._track.load_ass_file(ass_file, video_resolution)
 
-        self._renderer.storage_size = (
-            self._track.play_res_x,
-            self._track.play_res_y,
-        )
+        self._renderer.storage_size = video_resolution
         self._renderer.frame_size = video_resolution
-        self._renderer.pixel_aspect = 1.0
 
     def render(
         self, time: int, aspect_ratio: Union[float, Fraction] = Fraction(1, 1)
